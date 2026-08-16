@@ -48,25 +48,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    // -----------------------------
-    // Start Button
-    // -----------------------------
-    const startButton = document.querySelector(".btn-primary");
-
-    if (startButton) {
-
-        startButton.addEventListener("click", (e) => {
-
-            e.preventDefault();
-
-            // 将来ここを
-            // window.location.href = "player.html";
-            // に変更予定
-
-            alert("『カードを読む』ページは現在準備中です。");
-
-        });
-
-    }
 
 });
