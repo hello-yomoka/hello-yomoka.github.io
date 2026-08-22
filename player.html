@@ -14,16 +14,13 @@
 <body>
 <header class="header">
     <div class="container header-inner">
-        <a href="index.html" class="logo">
-            <img src="images/logo.png" alt="Yomoka ロゴ">
-            <span>Yomoka</span>
-        </a>
-        <nav>
+        <a href="index.html" class="logo"><img src="images/logo.png" alt="Yomoka ロゴ"><span>Yomoka</span></a>
+        <nav aria-label="メインナビゲーション">
             <ul class="nav">
                 <li><a href="index.html#about">Yomokaとは</a></li>
                 <li><a href="index.html#usage">使い方</a></li>
                 <li><a href="player.html" aria-current="page">カードを読む</a></li>
-                <li><a href="index.html">Homeへ戻る</a></li>
+                <li><a href="YOUR_GOOGLE_FORM_URL" target="_blank" rel="noopener noreferrer">お問い合わせ</a></li>
             </ul>
         </nav>
     </div>
@@ -32,7 +29,7 @@
 <main class="player-main">
     <section class="player-hero">
         <div class="container player-hero-inner">
-            <p class="eyebrow">Yomoka Player</p>
+            <img src="images/logo.png" alt="Yomokaロゴ" class="player-logo">
             <h1>カードを読む</h1>
             <p class="tagline">まずはサンプルデータで試してみてください。</p>
             <p class="player-lead">CSVをアップロードすると、1行目の項目名をそのまま使って、カード教材をブラウザ内で読み上げます。</p>
@@ -44,10 +41,7 @@
             <div class="player-column player-column-main">
                 <section class="card player-card now-card" aria-labelledby="current-title">
                     <div class="section-heading-row">
-                        <div>
-                            <p class="eyebrow">Now reading</p>
-                            <h2 id="current-title">現在のカード</h2>
-                        </div>
+                        <div><p class="eyebrow">現在のカード</p><h2 id="current-title">現在のカード</h2></div>
                         <p class="data-count" id="data-count">0件</p>
                     </div>
                     <div id="message" class="message" role="status" aria-live="polite"></div>
@@ -63,10 +57,7 @@
 
                 <section class="card player-card" aria-labelledby="table-title">
                     <div class="section-heading-row">
-                        <div>
-                            <p class="eyebrow">CSV preview</p>
-                            <h2 id="table-title">読み込んだデータ</h2>
-                        </div>
+                        <div><p class="eyebrow">読み込んだデータ</p><h2 id="table-title">読み込んだデータ</h2></div>
                         <p class="field-list" id="field-list"></p>
                     </div>
                     <div class="table-wrap" id="table-wrap"></div>
@@ -87,31 +78,18 @@
                 </section>
 
                 <section class="card player-card" aria-labelledby="settings-title">
-                    <p class="eyebrow">Settings</p>
+                    <p class="eyebrow">読み上げ設定</p>
                     <h2 id="settings-title">読み上げ設定</h2>
                     <div class="settings-grid">
-                        <label>読み上げ順
-                            <select id="order-select">
-                                <option value="sequential">順番に再生</option>
-                                <option value="random">ランダム再生</option>
-                            </select>
-                        </label>
-                        <label>読み上げ回数
-                            <select id="repeat-select"></select>
-                        </label>
-                        <label>読み上げ速度
-                            <select id="rate-select">
-                                <option value="0.65">ゆっくり</option>
-                                <option value="0.8">少しゆっくり</option>
-                                <option value="1" selected>通常</option>
-                            </select>
-                        </label>
-                        <label id="between-fields-setting">1列目から2列目までの待ち時間
-                            <select id="field-delay-select"></select>
-                        </label>
-                        <label>次の札までの待ち時間
-                            <select id="card-delay-select"></select>
-                        </label>
+                        <label>読み上げ順<select id="order-select"><option value="sequential">順番に再生</option><option value="random">ランダム再生</option></select></label>
+                        <label>読み上げ回数<select id="repeat-select"></select></label>
+                        <label>読み上げ速度<select id="rate-select"><option value="0.65">ゆっくり</option><option value="0.8">少しゆっくり</option><option value="1" selected>通常</option><option value="1.15">少し速い</option><option value="1.3">速い</option></select></label>
+                        <label id="between-fields-setting">項目1から項目2までの待ち時間<select id="field-delay-select"></select></label>
+                        <label>次の札までの待ち時間<select id="card-delay-select"></select></label>
+                    </div>
+                    <div class="tts-notes">
+                        <p>読み上げる文章は、日本語または外国語のどちらかにしてください。日本語と外国語が混在する文章には対応していません。</p>
+                        <p>外国語の読み上げには、ユーザーのPC・ブラウザで該当言語のTTS音声が利用可能である必要があります。</p>
                     </div>
                 </section>
             </aside>
@@ -119,9 +97,7 @@
     </section>
 </main>
 
-<footer>
-    <div class="container"><p>© 2026 Yomoka</p></div>
-</footer>
+<footer><div class="container"><p>© 2026 Yomoka</p></div></footer>
 <script src="js/script.js"></script>
 <script src="js/player.js"></script>
 </body>

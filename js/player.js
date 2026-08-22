@@ -1,17 +1,33 @@
 (() => {
     const samplePath = "data/sample.csv";
-    const state = { headers: [], rows: [], currentIndex: 0, isPlaying: false, order: "sequential", randomQueue: [], randomHistory: [] };
+    const state = {
+        headers: [],
+        rows: [],
+        currentIndex: 0,
+        isPlaying: false,
+        order: "sequential",
+        randomQueue: [],
+        runId: 0,
+        voices: []
+    };
     const els = {};
-    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     document.addEventListener("DOMContentLoaded", init);
 
     function init() {
-        ["csv-file","data-count","field-list","message","current-card","play-button","stop-button","prev-button","next-button","repeat-button","order-select","repeat-select","rate-select","field-delay-select","card-delay-select","between-fields-setting","table-wrap"].forEach(id => els[toCamel(id)] = document.getElementById(id));
+        ["csv-file", "data-count", "field-list", "message", "current-card", "play-button", "stop-button", "prev-button", "next-button", "repeat-button", "order-select", "repeat-select", "rate-select", "field-delay-select", "card-delay-select", "between-fields-setting", "table-wrap"].forEach(id => {
+            els[toCamel(id)] = document.getElementById(id);
+        });
+
         fillNumberSelect(els.repeatSelect, 1, 5, 2, "回");
         fillNumberSelect(els.fieldDelaySelect, 0, 5, 2, "秒");
         fillNumberSelect(els.cardDelaySelect, 0, 5, 2, "秒");
+
         bindEvents();
+        refreshVoices();
+        if (window.speechSynthesis) {
+            window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+        }
         loadSample();
     }
 
@@ -22,25 +38,40 @@
         els.prevButton.addEventListener("click", () => moveBy(-1));
         els.nextButton.addEventListener("click", () => moveBy(1));
         els.repeatButton.addEventListener("click", replayCurrent);
-        els.orderSelect.addEventListener("change", () => { state.order = els.orderSelect.value; resetRandom(); });
+        els.orderSelect.addEventListener("change", () => {
+            state.order = els.orderSelect.value;
+            resetRandom();
+        });
     }
 
-    function toCamel(id) { return id.replace(/-([a-z])/g, (_, c) => c.toUpperCase()); }
-    function fillNumberSelect(select, min, max, selected, suffix) { for (let i = min; i <= max; i++) select.add(new Option(`${i}${suffix}`, String(i), i === selected, i === selected)); }
+    function toCamel(id) {
+        return id.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+    }
+
+    function fillNumberSelect(select, min, max, selected, suffix) {
+        for (let i = min; i <= max; i++) {
+            select.add(new Option(`${i}${suffix}`, String(i), i === selected, i === selected));
+        }
+    }
 
     async function loadSample() {
         try {
-            const response = await fetch(samplePath);
+            const response = await fetch(samplePath, { cache: "no-store" });
             if (!response.ok) throw new Error("sample");
             applyCsv(await response.text(), "サンプルデータを読み込みました。▶ 再生を押すと読み上げを試せます。", false);
-        } catch (_) { showMessage("サンプルCSVを読み込めませんでした。ページを再読み込みしてください。", true); }
+        } catch (_) {
+            showMessage("サンプルCSVを読み込めませんでした。ページを再読み込みしてください。", true);
+        }
     }
 
     function handleFile(event) {
         const file = event.target.files[0];
         if (!file) return;
         const isCsv = file.name.toLowerCase().endsWith(".csv") || file.type === "text/csv" || file.type === "application/vnd.ms-excel";
-        if (!isCsv) { showMessage("CSVファイルを選択してください。", true); return; }
+        if (!isCsv) {
+            showMessage("CSVファイルを選択してください。", true);
+            return;
+        }
         const reader = new FileReader();
         reader.onload = () => applyCsv(String(reader.result), "CSVを読み込みました。", true);
         reader.onerror = () => showMessage("CSVを読み込めませんでした。もう一度お試しください。", true);
@@ -50,17 +81,43 @@
     function parseCsv(text) {
         const source = text.replace(/^\uFEFF/, "");
         if (!source.trim()) throw new Error("CSVが空です。データを入力してください。");
-        const rows = []; let row = [], field = "", quoted = false;
+
+        const rows = [];
+        let row = [];
+        let field = "";
+        let quoted = false;
+
         for (let i = 0; i < source.length; i++) {
-            const c = source[i], n = source[i + 1];
-            if (quoted) { if (c === '"' && n === '"') { field += '"'; i++; } else if (c === '"') quoted = false; else field += c; }
-            else if (c === '"') quoted = true;
-            else if (c === ",") { row.push(field); field = ""; }
-            else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
-            else if (c !== "\r") field += c;
+            const c = source[i];
+            const n = source[i + 1];
+            if (quoted) {
+                if (c === '"' && n === '"') {
+                    field += '"';
+                    i++;
+                } else if (c === '"') {
+                    quoted = false;
+                } else {
+                    field += c;
+                }
+            } else if (c === '"') {
+                quoted = true;
+            } else if (c === ",") {
+                row.push(field);
+                field = "";
+            } else if (c === "\n") {
+                row.push(field);
+                rows.push(row);
+                row = [];
+                field = "";
+            } else if (c !== "\r") {
+                field += c;
+            }
         }
+
         if (quoted) throw new Error("CSVを正しく解析できませんでした。引用符の数を確認してください。");
-        row.push(field); rows.push(row);
+        row.push(field);
+        rows.push(row);
+
         return rows.filter(r => r.some(cell => cell.trim() !== ""));
     }
 
@@ -69,70 +126,283 @@
             const parsed = parseCsv(text);
             const headers = (parsed[0] || []).map(h => h.trim());
             if (!headers.length || !headers[0]) throw new Error("1行目に項目名を入力してください。");
-            const rows = parsed.slice(1).map(r => headers.map((_, i) => (r[i] || "").trim())).filter(r => r[0]);
-            if (!rows.length) throw new Error("1列目のデータが存在しません。読み上げたい内容を入力してください。");
-            state.headers = headers; state.rows = rows; state.currentIndex = 0; stopPlayback(false); resetRandom(); updateUi(); showMessage(successMessage, false);
+
+            const rows = parsed.slice(1)
+                .map(r => headers.map((_, i) => (r[i] || "").trim()))
+                .filter(r => r.some(cell => cell !== ""));
+
+            if (!rows.length) throw new Error("データが存在しません。読み上げたい内容を入力してください。");
+
+            state.headers = headers;
+            state.rows = rows;
+            state.currentIndex = 0;
+            stopPlayback(false);
+            resetRandom();
+            updateUi();
+            showMessage(successMessage, false);
         } catch (error) {
             showMessage(error.message || "CSVを正しく解析できませんでした。内容を確認してください。", true);
             if (fromUpload) els.csvFile.value = "";
         }
     }
 
-    function hasSecondColumn() { return state.headers.length > 1 && state.rows.some(row => row[1]); }
-    function getSettings() { return { repeat: Number(els.repeatSelect.value), rate: Number(els.rateSelect.value), fieldDelay: Number(els.fieldDelaySelect.value) * 1000, cardDelay: Number(els.cardDelaySelect.value) * 1000 }; }
-
-    async function playFromCurrent() {
-        if (!state.rows.length) { showMessage("読み上げ対象データがありません。CSVを読み込んでください。", true); return; }
-        stopPlayback(false); state.isPlaying = true; updateControls();
-        try {
-            while (state.isPlaying) {
-                await readCurrentCard();
-                if (!state.isPlaying) break;
-                await wait(getSettings().cardDelay);
-                if (!state.isPlaying) break;
-                goNextAuto(); updateUi();
-            }
-        } finally { state.isPlaying = false; updateControls(); clearSpeaking(); }
+    function hasSecondColumn() {
+        return state.headers.length > 1;
     }
 
-    async function readCurrentCard() {
-        const settings = getSettings(), row = state.rows[state.currentIndex];
-        for (let count = 0; count < settings.repeat && state.isPlaying; count++) {
-            await speak(row[0], settings.rate, 0);
-            if (hasSecondColumn() && row[1] && state.isPlaying) { await wait(settings.fieldDelay); await speak(row[1], settings.rate, 1); }
+    function getSettings() {
+        return {
+            repeat: Number(els.repeatSelect.value),
+            rate: Number(els.rateSelect.value),
+            fieldDelay: Number(els.fieldDelaySelect.value) * 1000,
+            cardDelay: Number(els.cardDelaySelect.value) * 1000
+        };
+    }
+
+    async function playFromCurrent() {
+        if (!state.rows.length) {
+            showMessage("読み上げ対象データがありません。CSVを読み込んでください。", true);
+            return;
+        }
+        startPlayback();
+    }
+
+    function startPlayback() {
+        stopPlayback(false);
+        state.isPlaying = true;
+        const runId = ++state.runId;
+        updateControls();
+        playLoop(runId);
+    }
+
+    async function playLoop(runId) {
+        try {
+            while (isActive(runId)) {
+                await readCurrentCard(runId);
+                if (!isActive(runId)) break;
+
+                const settings = getSettings();
+                await wait(settings.cardDelay, runId);
+                if (!isActive(runId)) break;
+
+                if (!advanceAuto()) {
+                    stopPlayback();
+                    break;
+                }
+                updateUi();
+            }
+        } finally {
+            if (runId === state.runId) {
+                state.isPlaying = false;
+                updateControls();
+                clearSpeaking();
+            }
         }
     }
 
-    function speak(text, rate, fieldIndex) {
+    async function readCurrentCard(runId) {
+        const settings = getSettings();
+        const row = state.rows[state.currentIndex] || [];
+
+        for (let count = 0; count < settings.repeat && isActive(runId); count++) {
+            await speak(row[0], settings.rate, 0, runId);
+            if (!isActive(runId)) break;
+
+            if (hasSecondColumn() && row[1]) {
+                await wait(settings.fieldDelay, runId);
+                if (!isActive(runId)) break;
+                await speak(row[1], settings.rate, 1, runId);
+            }
+        }
+    }
+
+    function speak(text, rate, fieldIndex, runId) {
         return new Promise(resolve => {
-            if (!text || !window.speechSynthesis) { resolve(); return; }
-            clearSpeaking(); markSpeaking(fieldIndex);
-            const utterance = new SpeechSynthesisUtterance(text); utterance.lang = "ja-JP"; utterance.rate = rate;
-            utterance.onend = () => { clearSpeaking(); resolve(); }; utterance.onerror = () => { clearSpeaking(); resolve(); };
-            window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
+            if (!text || !window.speechSynthesis || !isActive(runId)) {
+                resolve();
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            clearSpeaking();
+            markSpeaking(fieldIndex);
+
+            const language = detectLanguage(text);
+            if (!language) {
+                showMessage("日本語と外国語が混在する文章には対応していません。文章をどちらか一方の言語にしてください。", true);
+                stopPlayback();
+                resolve();
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voice = selectVoice(language);
+            utterance.lang = voice?.lang || language;
+            utterance.rate = rate;
+            if (voice) utterance.voice = voice;
+
+            const finish = () => {
+                clearSpeaking();
+                resolve();
+            };
+
+            utterance.onend = finish;
+            utterance.onerror = finish;
+            window.speechSynthesis.speak(utterance);
         });
     }
 
-    function stopPlayback(update = true) { state.isPlaying = false; if (window.speechSynthesis) window.speechSynthesis.cancel(); clearSpeaking(); if (update) updateControls(); }
-    function replayCurrent() { stopPlayback(false); playFromCurrent(); }
-    function moveBy(delta) { stopPlayback(false); state.currentIndex = (state.currentIndex + delta + state.rows.length) % state.rows.length; updateUi(); }
-    function goNextAuto() { state.order === "random" ? nextRandom() : state.currentIndex = (state.currentIndex + 1) % state.rows.length; }
-    function resetRandom() { state.randomQueue = shuffle([...state.rows.keys()].filter(i => i !== state.currentIndex)); state.randomHistory = [state.currentIndex]; }
-    function nextRandom() { if (!state.randomQueue.length) resetRandom(); const next = state.randomQueue.shift(); state.randomHistory.push(next); state.currentIndex = next; }
-    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function wait(ms, runId) {
+        return new Promise(resolve => {
+            if (ms <= 0) {
+                resolve();
+                return;
+            }
+            window.setTimeout(resolve, ms);
+        }).then(() => {
+            if (!isActive(runId)) return;
+        });
+    }
 
-    function updateUi() { updateCurrent(); updateTable(); updateMeta(); updateControls(); els.betweenFieldsSetting.hidden = !hasSecondColumn(); }
+    function isActive(runId) {
+        return state.isPlaying && runId === state.runId;
+    }
+
+    function stopPlayback(update = true) {
+        state.isPlaying = false;
+        state.runId++;
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        clearSpeaking();
+        if (update) updateControls();
+    }
+
+    function replayCurrent() {
+        if (!state.rows.length) return;
+        startPlayback();
+    }
+
+    function moveBy(delta) {
+        if (!state.rows.length) return;
+        const wasPlaying = state.isPlaying;
+        stopPlayback(false);
+        state.currentIndex = (state.currentIndex + delta + state.rows.length) % state.rows.length;
+        resetRandom();
+        updateUi();
+        if (wasPlaying) startPlayback();
+    }
+
+    function advanceAuto() {
+        if (state.order === "random") {
+            if (!state.randomQueue.length) return false;
+            state.currentIndex = state.randomQueue.shift();
+            return true;
+        }
+
+        if (state.currentIndex >= state.rows.length - 1) return false;
+        state.currentIndex++;
+        return true;
+    }
+
+    function resetRandom() {
+        const indexes = state.rows.map((_, i) => i).filter(i => i !== state.currentIndex);
+        state.randomQueue = shuffle(indexes);
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function refreshVoices() {
+        state.voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+    }
+
+    function detectLanguage(text) {
+        const value = String(text).trim();
+        const hasJapanese = /\p{Script=Hiragana}|\p{Script=Katakana}|[\u3400-\u9FFF]/u.test(value);
+        const hasLatin = /\p{Script=Latin}/u.test(value);
+        if (hasJapanese && hasLatin) return null;
+        if (/\p{Script=Hiragana}|\p{Script=Katakana}|[\u3400-\u9FFF]/u.test(value)) return "ja-JP";
+        if (/\p{Script=Hangul}/u.test(value)) return "ko-KR";
+        if (/\p{Script=Cyrillic}/u.test(value)) return "ru-RU";
+        if (/\p{Script=Arabic}/u.test(value)) return "ar-SA";
+        if (/\p{Script=Devanagari}/u.test(value)) return "hi-IN";
+        if (/\p{Script=Hebrew}/u.test(value)) return "he-IL";
+        if (/\p{Script=Thai}/u.test(value)) return "th-TH";
+        if (/\p{Script=Greek}/u.test(value)) return "el-GR";
+        if (/\p{Script=Georgian}/u.test(value)) return "ka-GE";
+        if (/\p{Script=Armenian}/u.test(value)) return "hy-AM";
+        if (/\p{Script=Latin}/u.test(value)) return detectLatinLanguage(value);
+        return "en-US";
+    }
+
+    function detectLatinLanguage(text) {
+        const lower = text.toLowerCase();
+        if (/[áéíóúüñ¿¡]/.test(lower)) return "es-ES";
+        if (/[àâçéèêëîïôûùüÿœ]/.test(lower)) return "fr-FR";
+        if (/[äöüß]/.test(lower)) return "de-DE";
+        if (/[àèéìíîòóùú]/.test(lower) && /\b(che|chi|gli|sono|una|uno|perché|come)\b/.test(lower)) return "it-IT";
+        if (/[ãõ]/.test(lower) || /\b(que|não|uma|você|para)\b/.test(lower)) return "pt-BR";
+        return "en-US";
+    }
+
+    function selectVoice(language) {
+        if (!state.voices.length) return null;
+        const base = language.toLowerCase().split("-")[0];
+        return state.voices.find(v => v.lang?.toLowerCase() === language.toLowerCase())
+            || state.voices.find(v => v.lang?.toLowerCase().startsWith(`${base}-`))
+            || null;
+    }
+
+    function updateUi() {
+        updateCurrent();
+        updateTable();
+        updateMeta();
+        updateControls();
+        els.betweenFieldsSetting.hidden = !hasSecondColumn();
+    }
+
     function updateCurrent() {
         const row = state.rows[state.currentIndex] || [];
-        els.currentCard.innerHTML = state.headers.map((h, i) => `<div class="current-field" data-field="${i}"><span class="current-label">${escapeHtml(h)}</span><p class="current-value">${escapeHtml(row[i] || "（空欄）")}</p></div>`).join("");
+        els.currentCard.innerHTML = state.headers.map((h, i) =>
+            `<div class="current-field" data-field="${i}"><span class="current-label">${escapeHtml(h)}</span><p class="current-value">${escapeHtml(row[i] || "（空欄）")}</p></div>`
+        ).join("");
     }
+
     function updateTable() {
         els.tableWrap.innerHTML = `<table class="data-table"><thead><tr>${state.headers.map(h => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${state.rows.map((r, ri) => `<tr class="${ri === state.currentIndex ? "is-current" : ""}">${state.headers.map((_, i) => `<td>${r[i] ? escapeHtml(r[i]) : '<span class="empty-cell">空欄</span>'}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     }
-    function updateMeta() { els.dataCount.textContent = `${state.rows.length}件`; els.fieldList.textContent = `項目名：${state.headers.join(" / ")}`; }
-    function updateControls() { [els.playButton, els.prevButton, els.nextButton, els.repeatButton].forEach(b => b.disabled = !state.rows.length); els.stopButton.disabled = !state.isPlaying; }
-    function showMessage(text, isError) { els.message.textContent = text; els.message.className = `message is-visible${isError ? " is-error" : ""}`; }
-    function markSpeaking(i) { const el = els.currentCard.querySelector(`[data-field="${i}"]`); if (el) el.classList.add("is-speaking"); }
-    function clearSpeaking() { els.currentCard.querySelectorAll(".is-speaking").forEach(el => el.classList.remove("is-speaking")); }
-    function escapeHtml(value) { return String(value).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function updateMeta() {
+        els.dataCount.textContent = `${state.rows.length}件`;
+        els.fieldList.textContent = `項目名：${state.headers.join(" / ")}`;
+    }
+
+    function updateControls() {
+        [els.playButton, els.prevButton, els.nextButton, els.repeatButton].forEach(button => {
+            button.disabled = !state.rows.length;
+        });
+        els.stopButton.disabled = !state.isPlaying;
+    }
+
+    function showMessage(text, isError) {
+        els.message.textContent = text;
+        els.message.className = `message is-visible${isError ? " is-error" : ""}`;
+    }
+
+    function markSpeaking(index) {
+        const el = els.currentCard.querySelector(`[data-field="${index}"]`);
+        if (el) el.classList.add("is-speaking");
+    }
+
+    function clearSpeaking() {
+        els.currentCard.querySelectorAll(".is-speaking").forEach(el => el.classList.remove("is-speaking"));
+    }
+
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
 })();
