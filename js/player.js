@@ -367,7 +367,7 @@
         updateMeta();
         updateControls();
         const hasSecond = hasSecondColumn();
-        els.betweenFieldsSetting.hidden = !hasSecond;
+        els.betweenFieldsSetting.style.display = hasSecond ? "grid" : "none";
         if (hasSecond) {
             const h1 = state.headers[0] || "項目1";
             const h2 = state.headers[2] || "項目2";
