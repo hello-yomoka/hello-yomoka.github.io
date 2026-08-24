@@ -15,7 +15,7 @@
     document.addEventListener("DOMContentLoaded", init);
 
     function init() {
-        ["csv-file", "data-count", "field-list", "message", "current-card", "play-button", "stop-button", "prev-button", "next-button", "repeat-button", "order-select", "repeat-select", "rate-select", "field-delay-select", "card-delay-select", "between-fields-setting", "table-wrap"].forEach(id => {
+        ["csv-file", "data-count", "field-list", "message", "current-card", "play-button", "stop-button", "prev-button", "next-button", "repeat-button", "order-select", "repeat-select", "rate-select", "field-delay-select", "card-delay-select", "between-fields-setting", "field-delay-label", "table-wrap"].forEach(id => {
             els[toCamel(id)] = document.getElementById(id);
         });
 
@@ -366,7 +366,13 @@
         updateTable();
         updateMeta();
         updateControls();
-        els.betweenFieldsSetting.hidden = !hasSecondColumn();
+        const hasSecond = hasSecondColumn();
+        els.betweenFieldsSetting.hidden = !hasSecond;
+        if (hasSecond) {
+            const h1 = state.headers[0] || "項目1";
+            const h2 = state.headers[2] || "項目2";
+            els.fieldDelayLabel.textContent = `${h1}から${h2}までの待ち時間`;
+        }
     }
 
     function updateCurrent() {
