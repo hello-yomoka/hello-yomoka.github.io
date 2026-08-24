@@ -147,7 +147,7 @@
     }
 
     function hasSecondColumn() {
-        return state.headers.length > 2;
+        return state.headers.length > 2 && state.rows.some(r => r[2]);
     }
 
     function getSettings() {
