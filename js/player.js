@@ -147,7 +147,7 @@
     }
 
     function hasSecondColumn() {
-        return state.headers.length > 1;
+        return state.headers.length > 2;
     }
 
     function getSettings() {
@@ -205,13 +205,17 @@
         const row = state.rows[state.currentIndex] || [];
 
         for (let count = 0; count < settings.repeat && isActive(runId); count++) {
-            await speak(row[0], settings.rate, 0, runId);
+            // 1つ目の読み上げ（2列目があれば優先、なければ1列目）
+            const firstText = row[1] || row[0];
+            await speak(firstText, settings.rate, 0, runId);
             if (!isActive(runId)) break;
 
-            if (hasSecondColumn() && row[1]) {
+            // 2つ目の読み上げ（3列目があれば、4列目優先で読む）
+            if (row[2]) {
                 await wait(settings.fieldDelay, runId);
                 if (!isActive(runId)) break;
-                await speak(row[1], settings.rate, 1, runId);
+                const secondText = row[3] || row[2];
+                await speak(secondText, settings.rate, 2, runId);
             }
         }
     }
@@ -367,9 +371,11 @@
 
     function updateCurrent() {
         const row = state.rows[state.currentIndex] || [];
-        els.currentCard.innerHTML = state.headers.map((h, i) =>
-            `<div class="current-field" data-field="${i}"><span class="current-label">${escapeHtml(h)}</span><p class="current-value">${escapeHtml(row[i] || "（空欄）")}</p></div>`
-        ).join("");
+        els.currentCard.innerHTML = state.headers.map((h, i) => {
+            // 2列目(i=1)と4列目(i=3)は表示しない
+            if (i === 1 || i === 3) return "";
+            return `<div class="current-field" data-field="${i}"><span class="current-label">${escapeHtml(h)}</span><p class="current-value">${escapeHtml(row[i] || "（空欄）")}</p></div>`;
+        }).join("");
     }
 
     function updateTable() {

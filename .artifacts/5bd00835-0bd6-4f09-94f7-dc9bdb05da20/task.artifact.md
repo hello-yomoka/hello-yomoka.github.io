@@ -1,0 +1,4 @@
+- [ ] `updateCurrent` 関数の修正（2列目・4列目の非表示化）
+- [ ] `readCurrentCard` 関数の修正（2列目・4列目の優先読み上げロジック）
+- [ ] `updateUi` での `betweenFieldsSetting` の表示条件確認
+- [ ] 動作確認

@@ -41,7 +41,7 @@
             <div class="player-column player-column-main">
                 <section class="card player-card now-card" aria-labelledby="current-title">
                     <div class="section-heading-row">
-                        <div><p class="eyebrow">現在のカード</p><h2 id="current-title">現在のカード</h2></div>
+                        <div><h2 id="current-title">現在のカード</h2></div>
                         <p class="data-count" id="data-count">0件</p>
                     </div>
                     <div id="message" class="message" role="status" aria-live="polite"></div>
@@ -57,7 +57,7 @@
 
                 <section class="card player-card" aria-labelledby="table-title">
                     <div class="section-heading-row">
-                        <div><p class="eyebrow">読み込んだデータ</p><h2 id="table-title">読み込んだデータ</h2></div>
+                        <div><h2 id="table-title">読み込んだデータ</h2></div>
                         <p class="field-list" id="field-list"></p>
                     </div>
                     <div class="table-wrap" id="table-wrap"></div>
@@ -68,7 +68,7 @@
                 <section class="card player-card" aria-labelledby="csv-title">
                     <p class="eyebrow">CSV</p>
                     <h2 id="csv-title">データを用意する</h2>
-                    <p class="small-copy">サンプルCSVをダウンロードし、サンプルデータを削除して、読み上げたいデータを入力。CSVを保存してYomokaにアップロードし、再生してください。</p>
+                    <p class="small-copy">サンプルCSVをダウンロードし、サンプルデータを削除して、読み上げたいデータを入力。読み上げ方を正確に指定したい場合は、「読み」列に読み方を入力してください。空欄の場合は自動で読み上げます。CSVを保存してYomokaにアップロードし、再生してください。</p>
                     <a class="btn-secondary" href="data/sample.csv" download>サンプルCSVをダウンロード</a>
                     <label class="upload-box" for="csv-file">
                         <span>CSVをアップロード</span>
@@ -78,16 +78,17 @@
                 </section>
 
                 <section class="card player-card" aria-labelledby="settings-title">
-                    <p class="eyebrow">読み上げ設定</p>
                     <h2 id="settings-title">読み上げ設定</h2>
                     <div class="settings-grid">
                         <label>読み上げ順<select id="order-select"><option value="sequential">順番に再生</option><option value="random">ランダム再生</option></select></label>
                         <label>読み上げ回数<select id="repeat-select"></select></label>
-                        <label>読み上げ速度<select id="rate-select"><option value="0.65">ゆっくり</option><option value="0.8">少しゆっくり</option><option value="1" selected>通常</option><option value="1.15">少し速い</option><option value="1.3">速い</option></select></label>
-                        <label id="between-fields-setting">項目1から項目2までの待ち時間<select id="field-delay-select"></select></label>
+                        <label>読み上げ速度<select id="rate-select"><option value="0.55">ゆっくり</option><option value="0.75">少しゆっくり</option><option value="1" selected>通常</option><option value="1.25">少し速い</option><option value="1.5">速い</option></select></label>
+                        <label id="between-fields-setting"><span id="field-delay-label">項目1から項目2までの待ち時間</span><select id="field-delay-select"></select></label>
                         <label>次の札までの待ち時間<select id="card-delay-select"></select></label>
                     </div>
                     <div class="tts-notes">
+                        <h3>読み上げについて</h3>
+                        <p>「読み」列に入力した文字を優先して読み上げます。「読み」列が空欄の場合は、表示文字から言語を判定して読み上げます。</p>
                         <p>読み上げる文章は、日本語または外国語のどちらかにしてください。日本語と外国語が混在する文章には対応していません。</p>
                         <p>外国語の読み上げには、ユーザーのPC・ブラウザで該当言語のTTS音声が利用可能である必要があります。</p>
                     </div>
