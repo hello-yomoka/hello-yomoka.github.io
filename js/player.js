@@ -4,9 +4,10 @@
         headers: [],
         rows: [],
         currentIndex: 0,
+        sequence: [],
+        sequenceIndex: 0,
         isPlaying: false,
         order: "sequential",
-        randomQueue: [],
         runId: 0,
         voices: []
     };
@@ -40,8 +41,13 @@
         els.repeatButton.addEventListener("click", replayCurrent);
         els.restartButton.addEventListener("click", restartPlayback);
         els.orderSelect.addEventListener("change", () => {
+            const oldOrder = state.order;
             state.order = els.orderSelect.value;
-            resetRandom();
+            if (oldOrder !== state.order) {
+                // 順序が変わったら、現在のカードを起点に順序を作り直す
+                initSequence(state.currentIndex);
+                updateUi();
+            }
         });
     }
 
@@ -136,9 +142,8 @@
 
             state.headers = headers;
             state.rows = rows;
-            state.currentIndex = 0;
             stopPlayback(false);
-            resetRandom();
+            initSequence(0);
             updateUi();
             showMessage(successMessage, false);
         } catch (error) {
@@ -294,8 +299,7 @@
     function restartPlayback() {
         if (!state.rows.length) return;
         stopPlayback(false);
-        state.currentIndex = 0;
-        resetRandom();
+        initSequence(0);
         updateUi();
         startPlayback();
     }
@@ -304,35 +308,37 @@
         if (!state.rows.length) return;
         const wasPlaying = state.isPlaying;
         stopPlayback(false);
-        state.currentIndex = (state.currentIndex + delta + state.rows.length) % state.rows.length;
-        resetRandom();
+
+        state.sequenceIndex = (state.sequenceIndex + delta + state.sequence.length) % state.sequence.length;
+        state.currentIndex = state.sequence[state.sequenceIndex];
+
         updateUi();
         if (wasPlaying) startPlayback();
     }
 
     function advanceAuto() {
-        if (state.order === "random") {
-            if (!state.randomQueue.length) return false;
-            state.currentIndex = state.randomQueue.shift();
-            return true;
-        }
-
-        if (state.currentIndex >= state.rows.length - 1) return false;
-        state.currentIndex++;
+        if (state.sequenceIndex >= state.sequence.length - 1) return false;
+        state.sequenceIndex++;
+        state.currentIndex = state.sequence[state.sequenceIndex];
         return true;
     }
 
-    function resetRandom() {
-        if (state.order !== "random") {
-            state.randomQueue = [];
-            return;
+    function initSequence(startIndex = 0) {
+        const count = state.rows.length;
+        const all = Array.from({ length: count }, (_, i) => i);
+
+        if (state.order === "random") {
+            // シャッフルする。ただし startIndex を最初に持ってくるか、startIndex の位置を探す
+            // ここではシンプルに「全部シャッフルして、startIndex を見つける」か
+            // 「startIndex を除いてシャッフルし、先頭に startIndex を置く」ことにする
+            const other = all.filter(i => i !== startIndex);
+            state.sequence = [startIndex, ...shuffle(other)];
+            state.sequenceIndex = 0;
+        } else {
+            state.sequence = all;
+            state.sequenceIndex = startIndex;
         }
-        // 未再生のインデックスをシャッフルしてキューに入れる
-        // 最初から再生する場合などは全件を対象にする
-        const allIndexes = state.rows.map((_, i) => i);
-        // 現在のカードを除いたものをシャッフル
-        const otherIndexes = allIndexes.filter(i => i !== state.currentIndex);
-        state.randomQueue = shuffle(otherIndexes);
+        state.currentIndex = state.sequence[state.sequenceIndex];
     }
 
     function shuffle(arr) {
@@ -412,7 +418,7 @@
     }
 
     function updateMeta() {
-        els.dataCount.textContent = `${state.currentIndex + 1} / ${state.rows.length}件`;
+        els.dataCount.textContent = `${state.sequenceIndex + 1} / ${state.rows.length}件`;
         els.fieldList.textContent = `項目名：${state.headers.join(" / ")}`;
     }
 
