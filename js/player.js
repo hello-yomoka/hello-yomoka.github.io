@@ -15,7 +15,7 @@
     document.addEventListener("DOMContentLoaded", init);
 
     function init() {
-        ["csv-file", "data-count", "field-list", "message", "current-card", "play-button", "stop-button", "prev-button", "next-button", "repeat-button", "order-select", "repeat-select", "rate-select", "field-delay-select", "card-delay-select", "between-fields-setting", "field-delay-label", "table-wrap"].forEach(id => {
+        ["csv-file", "data-count", "field-list", "message", "current-card", "play-button", "stop-button", "prev-button", "next-button", "repeat-button", "restart-button", "order-select", "repeat-select", "rate-select", "field-delay-select", "card-delay-select", "between-fields-setting", "field-delay-label", "table-wrap"].forEach(id => {
             els[toCamel(id)] = document.getElementById(id);
         });
 
@@ -38,6 +38,7 @@
         els.prevButton.addEventListener("click", () => moveBy(-1));
         els.nextButton.addEventListener("click", () => moveBy(1));
         els.repeatButton.addEventListener("click", replayCurrent);
+        els.restartButton.addEventListener("click", restartPlayback);
         els.orderSelect.addEventListener("change", () => {
             state.order = els.orderSelect.value;
             resetRandom();
@@ -181,6 +182,7 @@
                 await readCurrentCard(runId);
                 if (!isActive(runId)) break;
 
+                // 次のカードへ進む前に設定を再取得（待ち時間の即時反映）
                 const settings = getSettings();
                 await wait(settings.cardDelay, runId);
                 if (!isActive(runId)) break;
@@ -201,10 +203,13 @@
     }
 
     async function readCurrentCard(runId) {
-        const settings = getSettings();
         const row = state.rows[state.currentIndex] || [];
 
-        for (let count = 0; count < settings.repeat && isActive(runId); count++) {
+        // ループ内で設定を再取得することで、繰り返し回数や速度、遅延の変更を即時反映する
+        for (let count = 0; ; count++) {
+            const settings = getSettings();
+            if (count >= settings.repeat || !isActive(runId)) break;
+
             // 1つ目の読み上げ（2列目があれば優先、なければ1列目）
             const firstText = row[1] || row[0];
             await speak(firstText, settings.rate, 0, runId);
@@ -212,10 +217,11 @@
 
             // 2つ目の読み上げ（3列目があれば、4列目優先で読む）
             if (row[2]) {
-                await wait(settings.fieldDelay, runId);
+                const innerSettings = getSettings();
+                await wait(innerSettings.fieldDelay, runId);
                 if (!isActive(runId)) break;
                 const secondText = row[3] || row[2];
-                await speak(secondText, settings.rate, 2, runId);
+                await speak(secondText, innerSettings.rate, 2, runId);
             }
         }
     }
@@ -285,6 +291,15 @@
         startPlayback();
     }
 
+    function restartPlayback() {
+        if (!state.rows.length) return;
+        stopPlayback(false);
+        state.currentIndex = 0;
+        resetRandom();
+        updateUi();
+        startPlayback();
+    }
+
     function moveBy(delta) {
         if (!state.rows.length) return;
         const wasPlaying = state.isPlaying;
@@ -308,8 +323,16 @@
     }
 
     function resetRandom() {
-        const indexes = state.rows.map((_, i) => i).filter(i => i !== state.currentIndex);
-        state.randomQueue = shuffle(indexes);
+        if (state.order !== "random") {
+            state.randomQueue = [];
+            return;
+        }
+        // 未再生のインデックスをシャッフルしてキューに入れる
+        // 最初から再生する場合などは全件を対象にする
+        const allIndexes = state.rows.map((_, i) => i);
+        // 現在のカードを除いたものをシャッフル
+        const otherIndexes = allIndexes.filter(i => i !== state.currentIndex);
+        state.randomQueue = shuffle(otherIndexes);
     }
 
     function shuffle(arr) {
@@ -389,12 +412,12 @@
     }
 
     function updateMeta() {
-        els.dataCount.textContent = `${state.rows.length}件`;
+        els.dataCount.textContent = `${state.currentIndex + 1} / ${state.rows.length}件`;
         els.fieldList.textContent = `項目名：${state.headers.join(" / ")}`;
     }
 
     function updateControls() {
-        [els.playButton, els.prevButton, els.nextButton, els.repeatButton].forEach(button => {
+        [els.playButton, els.prevButton, els.nextButton, els.repeatButton, els.restartButton].forEach(button => {
             button.disabled = !state.rows.length;
         });
         els.stopButton.disabled = !state.isPlaying;
