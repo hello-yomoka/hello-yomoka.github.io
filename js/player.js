@@ -143,7 +143,7 @@
             state.headers = headers;
             state.rows = rows;
             stopPlayback(false);
-            initSequence(0);
+            initSequence();
             updateUi();
             showMessage(successMessage, false);
         } catch (error) {
@@ -299,7 +299,7 @@
     function restartPlayback() {
         if (!state.rows.length) return;
         stopPlayback(false);
-        initSequence(0);
+        initSequence();
         updateUi();
         startPlayback();
     }
@@ -323,20 +323,21 @@
         return true;
     }
 
-    function initSequence(startIndex = 0) {
+    function initSequence(startIndex = null) {
         const count = state.rows.length;
         const all = Array.from({ length: count }, (_, i) => i);
 
         if (state.order === "random") {
-            // シャッフルする。ただし startIndex を最初に持ってくるか、startIndex の位置を探す
-            // ここではシンプルに「全部シャッフルして、startIndex を見つける」か
-            // 「startIndex を除いてシャッフルし、先頭に startIndex を置く」ことにする
-            const other = all.filter(i => i !== startIndex);
-            state.sequence = [startIndex, ...shuffle(other)];
+            if (startIndex === null) {
+                state.sequence = shuffle(all);
+            } else {
+                const other = all.filter(i => i !== startIndex);
+                state.sequence = [startIndex, ...shuffle(other)];
+            }
             state.sequenceIndex = 0;
         } else {
             state.sequence = all;
-            state.sequenceIndex = startIndex;
+            state.sequenceIndex = startIndex === null ? 0 : startIndex;
         }
         state.currentIndex = state.sequence[state.sequenceIndex];
     }
