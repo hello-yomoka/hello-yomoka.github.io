@@ -1,4 +1,4 @@
-- [ ] `updateCurrent` 関数の修正（2列目・4列目の非表示化）
-- [ ] `readCurrentCard` 関数の修正（2列目・4列目の優先読み上げロジック）
-- [ ] `updateUi` での `betweenFieldsSetting` の表示条件確認
-- [ ] 動作確認
+- [x] `js/player.js` の `initSequence` を修正（ランダム開始に対応）
+- [x] `applyCsv` と `restartPlayback` の呼び出し箇所を修正
+- [x] 動作確認
+- [ ] GitHubへ送信
