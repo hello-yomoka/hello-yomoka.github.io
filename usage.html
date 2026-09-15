@@ -5,13 +5,23 @@
         <nav aria-label="メインナビゲーション">
             <ul class="nav">
                 <li><a href="about.html">Yomokaとは</a></li>
-                <li><a href="usage.html">使い方</a></li>
-                <li><a href="use-cases.html">活用方法</a></li>
-                <li><a href="csv.html">CSVの作り方</a></li>
-                <li><a href="player.html">カードを読む</a></li>
+                <li class="nav-dropdown"><div class="nav-dropdown-label"><a href="use-cases.html">活用方法 <span class="nav-dropdown-indicator" aria-hidden="true">▼</span></a><button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="case-submenu" aria-label="活用方法の詳細を開く">▼</button></div><ul class="nav-submenu" id="case-submenu"><li><a href="proverb-karuta.html">① 市販のことわざかるたで遊ぶ</a></li><li><a href="hyakunin-isshu.html">② 百人一首で遊ぶ</a></li><li><a href="english-cards.html">③ 英単語カードで英語を学ぶ</a></li></ul></li>
+                <li><a href="usage.html" aria-current="page">使い方</a></li>
+                <li><a href="operator.html">運営者について</a></li>
                 <li><a href="https://forms.gle/XRMqAVYMLcaAQ1Hg7" target="_blank" rel="noopener noreferrer">お問い合わせ</a></li>
+                <li class="nav-cta"><a href="player.html">▶ カードを読む</a></li>
             </ul>
         </nav>
     </div>
 </header>
-<main class="content-page"><section class="page-hero"><div class="container"><h1>使い方</h1><p>CSVを登録して、Yomokaにカード教材を読み上げてもらいましょう。</p></div></section><section class="section"><div class="container"><div class="steps"><div class="step"><div class="step-number">①</div><h3>読み上げ内容を登録</h3></div><div class="arrow">→</div><div class="step"><div class="step-number">②</div><h3>カードを再生</h3></div><div class="arrow">→</div><div class="step"><div class="step-number">③</div><h3>読み手がいなくても楽しめる</h3></div></div><p class="center">詳しい登録方法やテンプレートは「カードを読む」ページでご案内しています。</p><p class="center page-action"><a href="player.html" class="btn-primary">カードを読む</a></p></div></section></main><footer><div class="container"><p>© 2026 Yomoka</p></div></footer><script src="js/script.js"></script></body></html>
+<main class="content-page">
+    <section class="page-hero"><div class="container"><h1>使い方</h1></div></section>
+    <section class="section content-start"><div class="container usage-steps">
+        <article class="card usage-step"><div class="step-number">①</div><h2>サンプルCSVをダウンロード</h2><p>「<a class="csv-link" href="player.html">カードを読む</a>」ページの「サンプルCSVをダウンロード」から、サンプルCSVをダウンロードします。</p><div class="placeholder">スクリーンショットを追加する領域<br>「サンプルCSVをダウンロード」の場所を案内</div></article>
+        <article class="card usage-step"><div class="step-number">②</div><h2>サンプルCSVのデータを削除</h2><p>「サンプルCSVの2行目以降のデータを削除します。」</p><div class="placeholder">スクリーンショットを追加する領域<br>削除前／削除後</div></article>
+        <article class="card usage-step"><div class="step-number">③</div><h2>読み上げたいデータを入力</h2><p>「サンプルCSVの2行目以降に、読み上げたいデータを入力します。<br>必要に応じて1行目も編集してください。1行目の意味や入力方法の詳細は、「<a class="csv-link" href="csv.html">CSVの作り方</a>」をご覧ください。」</p><div class="placeholder">スクリーンショットを追加する領域<br>入力例</div></article>
+        <article class="card usage-step"><div class="step-number">④</div><h2>CSVをアップロード</h2><p>「<a class="csv-link" href="player.html">カードを読む</a>」ページの「CSVをアップロード」から、CSVをアップロードします。</p><div class="placeholder">スクリーンショットを追加する領域<br>「CSVをアップロード」の場所を案内</div></article>
+        <article class="card usage-step"><div class="step-number">⑤</div><h2>読み上げ設定を変更して、再生</h2><p>「読み上げ設定をお好みに変更し、再生ボタンを押します。」</p><div class="placeholder">スクリーンショットを追加する領域<br>読み上げ設定と再生ボタンを案内</div></article>
+        <p class="center page-action"><a href="player.html" class="btn-primary">▶ カードを読む</a></p>
+    </div></section>
+</main><footer><div class="container"><p>© 2026 Yomoka</p></div></footer><script src="js/script.js"></script></body></html>

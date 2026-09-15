@@ -21,11 +21,11 @@
         <nav aria-label="メインナビゲーション">
             <ul class="nav">
                 <li><a href="about.html">Yomokaとは</a></li>
+                <li class="nav-dropdown"><div class="nav-dropdown-label"><a href="use-cases.html">活用方法 <span class="nav-dropdown-indicator" aria-hidden="true">▼</span></a><button class="nav-dropdown-toggle" type="button" aria-expanded="false" aria-controls="case-submenu" aria-label="活用方法の詳細を開く">▼</button></div><ul class="nav-submenu" id="case-submenu"><li><a href="proverb-karuta.html">① 市販のことわざかるたで遊ぶ</a></li><li><a href="hyakunin-isshu.html">② 百人一首で遊ぶ</a></li><li><a href="english-cards.html">③ 英単語カードで英語を学ぶ</a></li></ul></li>
                 <li><a href="usage.html">使い方</a></li>
-                <li><a href="use-cases.html">活用方法</a></li>
-                <li><a href="csv.html">CSVの作り方</a></li>
-                <li><a href="player.html">カードを読む</a></li>
+                <li><a href="operator.html">運営者について</a></li>
                 <li><a href="https://forms.gle/XRMqAVYMLcaAQ1Hg7" target="_blank" rel="noopener noreferrer">お問い合わせ</a></li>
+                <li class="nav-cta"><a href="player.html">▶ カードを読む</a></li>
             </ul>
         </nav>
     </div>
@@ -42,7 +42,7 @@
                 <h1>Yomoka</h1>
                 <p class="catch">読もか？</p>
                 <p class="tagline">読み手がいなくても、楽しめる。</p>
-                <a href="player.html" class="btn-primary">▶ はじめる</a>
+                <a href="player.html" class="btn-primary">▶ カードを読む</a>
                 <p class="hero-note">テンプレートのダウンロードや読み上げデータの登録もこちらから。</p>
             </div>
         </div>
@@ -50,16 +50,10 @@
 
     <section class="section page-links" aria-label="Yomokaのご案内">
         <div class="container">
-            <h2>Yomokaのご案内</h2>
-            <div class="grid grid-2">
+            <div class="guide-flow">
                 <a class="card page-link-card" href="about.html">
                     <h3>Yomokaとは</h3>
                     <p>Yomokaの特徴や、使えるカード教材をご紹介します。</p>
-                </a>
-
-                <a class="card page-link-card" href="usage.html">
-                    <h3>使い方</h3>
-                    <p>読み上げを始めるまでの流れをご案内します。</p>
                 </a>
 
                 <a class="card page-link-card" href="use-cases.html">
@@ -67,9 +61,24 @@
                     <p>かるた・百人一首・英単語カードでの活用例をご紹介します。</p>
                 </a>
 
-                <a class="card page-link-card" href="csv.html">
-                    <h3>CSVの作り方</h3>
-                    <p>CSVの入力方法を順次ご案内します。</p>
+                <a class="card page-link-card" href="usage.html">
+                    <h3>使い方</h3>
+                    <p>読み上げを始めるまでの流れをご案内します。</p>
+                </a>
+
+                <a class="card page-link-card" href="operator.html">
+                    <h3>運営者について</h3>
+                    <p>サービスづくりのきっかけや、Yomokaに込めた思いをご紹介します。</p>
+                </a>
+
+                <a class="card page-link-card" href="https://forms.gle/XRMqAVYMLcaAQ1Hg7" target="_blank" rel="noopener noreferrer">
+                    <h3>お問い合わせ</h3>
+                    <p>ご質問やご意見はこちらからお寄せください。</p>
+                </a>
+
+                <a class="card page-link-card guide-player-card" href="player.html">
+                    <h3>▶ カードを読む</h3>
+                    <p>CSVをアップロードして、カードの読み上げを始めます。</p>
                 </a>
             </div>
         </div>
