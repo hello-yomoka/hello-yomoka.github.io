@@ -64,3 +64,40 @@ footer{margin-top:72px;padding:36px 0;border-top:1px solid rgba(0,0,0,.08);text-
 @media(max-width:640px){.header-inner{min-height:72px;padding:8px 0}.logo img{width:50px}.logo span{display:none}.nav{display:none}.hero{padding-top:132px;padding-bottom:100px}.hero-logo{width:220px}h1{font-size:38px}.catch{font-size:28px}.tagline{font-size:18px}.section{padding:80px 0}h2{font-size:28px;margin-bottom:40px}.grid-2,.grid-3{grid-template-columns:1fr}.card{padding:28px}.btn-primary{width:100%;max-width:320px}footer{margin-top:80px}}
 /* Content pages */
 .content-page{padding-top:88px}.page-hero{padding:110px 0 80px;text-align:center;background:rgba(255,255,255,.35)}.page-hero h1{margin-bottom:12px}.page-hero p{font-size:19px}.section-compact{padding-top:0}.page-action{margin-top:44px}.page-link-card{display:block;text-align:left!important;font-size:inherit!important}.page-link-card h3{color:var(--brown);font-size:22px;font-weight:700}.page-link-card p{margin-top:10px}.page-link-card:hover{color:inherit}.placeholder{min-height:170px;margin-top:28px;border:2px dashed rgba(95,74,58,.28);border-radius:12px;background:rgba(255,255,255,.42);display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--sub);font-size:14px}.use-case{scroll-margin-top:110px}.use-case + .use-case{margin-top:80px}.use-case-heading{font-size:28px;text-align:left;margin-bottom:24px}.use-case-intro{max-width:800px;margin-bottom:28px}.csv-link{color:var(--brown);font-weight:700;text-decoration:underline;text-underline-offset:4px}.level-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}.level-card h3{font-size:21px;color:var(--brown);font-weight:700}.level-card p{margin-top:16px}.level-card .placeholder{min-height:150px}.coming-soon{max-width:720px;margin:auto;text-align:center}.coming-soon p{margin-top:18px}@media(max-width:900px){.nav{gap:16px;font-size:14px}.level-grid{grid-template-columns:1fr}}@media(max-width:760px){.nav{display:none}.content-page{padding-top:72px}.page-hero{padding:80px 0 60px}.page-hero p{font-size:16px}.use-case + .use-case{margin-top:56px}.use-case-heading{font-size:24px}}
+
+.usage-step .usage-image{width:100%;height:auto;margin-top:28px}
+
+/* Compact overview cards, scoped to the use-cases page. */
+.use-cases-page .use-case-links { grid-template-rows: auto repeat(3, 1fr); }
+.use-cases-page .use-case-link-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 36px !important;
+  transition: box-shadow .18s ease;
+}
+.content-page.use-cases-page .use-case-link-card h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0 !important;
+  color: var(--brown);
+}
+.use-cases-page .use-case-link-card p {
+  flex-shrink: 0;
+  margin: 0;
+  color: var(--sub);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.use-cases-page .use-case-link-card:hover { transform: none; box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+@media (hover: hover) {
+  .use-cases-page .use-case-link-card:hover { box-shadow: 0 6px 16px rgba(95,74,58,.12); }
+}
+.use-cases-page .use-case-link-card:focus-visible { outline: 2px solid var(--brown); outline-offset: 4px; }
+@media (max-width: 640px) {
+  .use-cases-page .use-case-link-card { gap: 12px; padding: 20px 24px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .use-cases-page .use-case-link-card { transition: none; }
+}
