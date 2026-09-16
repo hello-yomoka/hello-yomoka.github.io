@@ -101,3 +101,10 @@ footer{margin-top:72px;padding:36px 0;border-top:1px solid rgba(0,0,0,.08);text-
 @media (prefers-reduced-motion: reduce) {
   .use-cases-page .use-case-link-card { transition: none; }
 }
+
+/* Proverb karuta illustrations and the pause between readings. */
+.proverb-visual { width: min(760px, 100%); margin: 28px auto 0; }
+.proverb-illustration { width: 100%; height: auto; }
+.proverb-wait-flow { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 16px 0; color: var(--brown); font-size: 18px; font-weight: 500; line-height: 1.6; }
+.proverb-flow-arrow { position: relative; display: block; width: 1px; height: 20px; background: var(--sub); }
+.proverb-flow-arrow::after { content: ""; position: absolute; bottom: 0; left: 50%; width: 6px; height: 6px; border-right: 1px solid var(--sub); border-bottom: 1px solid var(--sub); transform: translateX(-50%) rotate(45deg); }

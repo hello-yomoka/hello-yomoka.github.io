@@ -1,5 +1,5 @@
-.usage-image[role="button"] { cursor: zoom-in; }
-.usage-image[role="button"]:focus-visible { outline: 3px solid #B94A48; outline-offset: 4px; }
+.usage-image[role="button"], .proverb-illustration[role="button"] { cursor: zoom-in; }
+.usage-image[role="button"]:focus-visible, .proverb-illustration[role="button"]:focus-visible { outline: 3px solid #B94A48; outline-offset: 4px; }
 .usage-lightbox {
   position: fixed;
   inset: 0;

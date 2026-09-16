@@ -1,5 +1,5 @@
 (() => {
-  const images = document.querySelectorAll('.usage-step .usage-image');
+  const images = document.querySelectorAll('.usage-step .usage-image, .proverb-illustration[data-lightbox]');
   if (!images.length || typeof HTMLDialogElement === 'undefined') return;
 
   const dialog = document.createElement('dialog');
