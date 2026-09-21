@@ -103,8 +103,17 @@ footer{margin-top:72px;padding:36px 0;border-top:1px solid rgba(0,0,0,.08);text-
 }
 
 /* Proverb karuta illustrations and the pause between readings. */
-.proverb-visual { width: min(760px, 100%); margin: 28px auto 0; }
-.proverb-illustration { width: 100%; height: auto; }
+.proverb-visual, .learning-visual { width: min(760px, 100%); margin: 28px auto 0; }
+.proverb-illustration, .learning-illustration { width: 100%; height: auto; }
 .proverb-wait-flow { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 16px 0; color: var(--brown); font-size: 18px; font-weight: 500; line-height: 1.6; }
-.proverb-flow-arrow { position: relative; display: block; width: 1px; height: 20px; background: var(--sub); }
-.proverb-flow-arrow::after { content: ""; position: absolute; bottom: 0; left: 50%; width: 6px; height: 6px; border-right: 1px solid var(--sub); border-bottom: 1px solid var(--sub); transform: translateX(-50%) rotate(45deg); }
+.proverb-flow-arrow, .learning-flow-arrow { position: relative; display: block; width: 1px; height: 20px; background: var(--sub); }
+.proverb-flow-arrow::after, .learning-flow-arrow::after { content: ""; position: absolute; bottom: 0; left: 50%; width: 6px; height: 6px; border-right: 1px solid var(--sub); border-bottom: 1px solid var(--sub); transform: translateX(-50%) rotate(45deg); }
+
+/* Home Hero CTA: match header CTA colors and hover without changing geometry. */
+.hero .hero-copy > .btn-primary[href="player.html"] { background: var(--accent); color: var(--white); }
+.hero .hero-copy > .btn-primary[href="player.html"]:hover { transform: none; opacity: .9; }
+
+/* Hyakunin isshu downloads and consecutive illustration scenes. */
+.btn-primary.hyakunin-download { width: auto; max-width: 100%; margin-top: 24px; padding: 10px 20px; border-radius: 8px; background: var(--bg); color: var(--brown); font-size: 16px; text-align: center; }
+.btn-primary.hyakunin-download:hover { transform: none; opacity: .9; }
+.hyakunin-sequence .learning-flow-arrow { margin: 20px auto; }
