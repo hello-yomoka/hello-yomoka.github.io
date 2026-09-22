@@ -16,13 +16,16 @@
     document.addEventListener("DOMContentLoaded", init);
 
     function init() {
-        ["csv-file", "data-count", "field-list", "message", "current-card", "play-button", "stop-button", "prev-button", "next-button", "repeat-button", "restart-button", "order-select", "repeat-select", "rate-select", "field-delay-select", "card-delay-select", "between-fields-setting", "field-delay-label", "table-wrap"].forEach(id => {
+        ["csv-file", "data-count", "field-list", "message", "current-card", "play-button", "stop-button", "prev-button", "next-button", "repeat-button", "restart-button", "order-select", "repeat-select", "rate-select", "field-delay-select", "card-delay-select", "between-fields-setting", "field-delay-label", "table-wrap", "first-language-select", "second-language-select", "second-language-setting", "first-language-label", "second-language-label"].forEach(id => {
             els[toCamel(id)] = document.getElementById(id);
         });
 
         fillNumberSelect(els.repeatSelect, 1, 5, 2, "回");
         fillNumberSelect(els.fieldDelaySelect, 0, 5, 2, "秒");
         fillNumberSelect(els.cardDelaySelect, 0, 5, 2, "秒");
+
+        els.firstLanguageSelect.value = "ja-JP";
+        els.secondLanguageSelect.value = "ja-JP";
 
         bindEvents();
         refreshVoices();
@@ -242,19 +245,20 @@
             clearSpeaking();
             markSpeaking(fieldIndex);
 
-            const language = detectLanguage(text);
-            if (!language) {
-                showMessage("日本語と外国語が混在する文章には対応していません。文章をどちらか一方の言語にしてください。", true);
+            const language = fieldIndex === 0 ? els.firstLanguageSelect.value : els.secondLanguageSelect.value;
+            refreshVoices();
+            const voice = selectVoice(language);
+            if (!voice) {
+                showMessage("選択した言語の読み上げ音声を利用できません。端末やブラウザの音声設定をご確認ください。音声の準備中の場合は、少し待ってから再生してください。", true);
                 stopPlayback();
                 resolve();
                 return;
             }
 
             const utterance = new SpeechSynthesisUtterance(text);
-            const voice = selectVoice(language);
-            utterance.lang = voice?.lang || language;
+            utterance.lang = language;
             utterance.rate = rate;
-            if (voice) utterance.voice = voice;
+            utterance.voice = voice;
 
             const finish = () => {
                 clearSpeaking();
@@ -354,40 +358,9 @@
         state.voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
     }
 
-    function detectLanguage(text) {
-        const value = String(text).trim();
-        const hasJapanese = /\p{Script=Hiragana}|\p{Script=Katakana}|[\u3400-\u9FFF]/u.test(value);
-        const hasLatin = /\p{Script=Latin}/u.test(value);
-        if (hasJapanese && hasLatin) return null;
-        if (/\p{Script=Hiragana}|\p{Script=Katakana}|[\u3400-\u9FFF]/u.test(value)) return "ja-JP";
-        if (/\p{Script=Hangul}/u.test(value)) return "ko-KR";
-        if (/\p{Script=Cyrillic}/u.test(value)) return "ru-RU";
-        if (/\p{Script=Arabic}/u.test(value)) return "ar-SA";
-        if (/\p{Script=Devanagari}/u.test(value)) return "hi-IN";
-        if (/\p{Script=Hebrew}/u.test(value)) return "he-IL";
-        if (/\p{Script=Thai}/u.test(value)) return "th-TH";
-        if (/\p{Script=Greek}/u.test(value)) return "el-GR";
-        if (/\p{Script=Georgian}/u.test(value)) return "ka-GE";
-        if (/\p{Script=Armenian}/u.test(value)) return "hy-AM";
-        if (/\p{Script=Latin}/u.test(value)) return detectLatinLanguage(value);
-        return "en-US";
-    }
-
-    function detectLatinLanguage(text) {
-        const lower = text.toLowerCase();
-        if (/[áéíóúüñ¿¡]/.test(lower)) return "es-ES";
-        if (/[àâçéèêëîïôûùüÿœ]/.test(lower)) return "fr-FR";
-        if (/[äöüß]/.test(lower)) return "de-DE";
-        if (/[àèéìíîòóùú]/.test(lower) && /\b(che|chi|gli|sono|una|uno|perché|come)\b/.test(lower)) return "it-IT";
-        if (/[ãõ]/.test(lower) || /\b(que|não|uma|você|para)\b/.test(lower)) return "pt-BR";
-        return "en-US";
-    }
-
     function selectVoice(language) {
         if (!state.voices.length) return null;
-        const base = language.toLowerCase().split("-")[0];
         return state.voices.find(v => v.lang?.toLowerCase() === language.toLowerCase())
-            || state.voices.find(v => v.lang?.toLowerCase().startsWith(`${base}-`))
             || null;
     }
 
@@ -396,8 +369,11 @@
         updateTable();
         updateMeta();
         updateControls();
+        els.firstLanguageLabel.textContent = `${state.headers[0]?.trim() || "項目1"}の言語`;
+        els.secondLanguageLabel.textContent = `${state.headers[2]?.trim() || "項目2"}の言語`;
         const hasSecond = hasSecondColumn();
         els.betweenFieldsSetting.style.display = hasSecond ? "grid" : "none";
+        els.secondLanguageSetting.style.display = hasSecond ? "grid" : "none";
         if (hasSecond) {
             const h1 = state.headers[0] || "項目1";
             const h2 = state.headers[2] || "項目2";
