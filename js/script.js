@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             usageSubmenu.className = "nav-submenu";
             usageSubmenu.id = "usage-submenu";
-            usageSubmenu.innerHTML = '<li><a href="csv.html">CSVの作り方</a></li>';
+            usageSubmenu.innerHTML = '<li><a href="usage.html">使い方トップ</a></li><li><a href="csv.html">CSVの作り方</a></li>';
 
             usageLabel.append(usageParentLink, usageToggle);
             usageDropdown.append(usageLabel, usageSubmenu);
