@@ -176,18 +176,19 @@
         startPlayback();
     }
 
-    function startPlayback() {
+    function startPlayback(currentOnly = false) {
         stopPlayback(false);
         state.isPlaying = true;
         const runId = ++state.runId;
         updateControls();
-        playLoop(runId);
+        playLoop(runId, currentOnly);
     }
 
-    async function playLoop(runId) {
+    async function playLoop(runId, currentOnly = false) {
         try {
             while (isActive(runId)) {
                 await readCurrentCard(runId);
+                if (currentOnly) break;
                 if (!isActive(runId)) break;
 
                 // 次のカードへ進む前に設定を再取得（待ち時間の即時反映）
@@ -297,7 +298,7 @@
 
     function replayCurrent() {
         if (!state.rows.length) return;
-        startPlayback();
+        startPlayback(true);
     }
 
     function restartPlayback() {
@@ -385,7 +386,7 @@
         const row = state.rows[state.currentIndex] || [];
         els.currentCard.innerHTML = state.headers.map((h, i) => {
             // 2列目(i=1)と4列目(i=3)は表示しない
-            if (i === 1 || i === 3) return "";
+            if (i === 1 || i === 3 || (i === 2 && !hasSecondColumn())) return "";
             return `<div class="current-field" data-field="${i}"><span class="current-label">${escapeHtml(h)}</span><p class="current-value">${escapeHtml(row[i] || "（空欄）")}</p></div>`;
         }).join("");
     }
