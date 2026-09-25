@@ -145,3 +145,9 @@ footer{margin-top:72px;padding:36px 0;border-top:1px solid rgba(0,0,0,.08);text-
 .csv-guide .csv-guide-point-card{background:var(--white);border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.05);padding:32px 36px;min-width:0}
 .csv-guide .csv-guide-point-card+.csv-guide-point-card{margin-top:32px}
 @media(max-width:760px){.csv-guide .csv-guide-point-card{padding:24px 20px}}
+
+/* Privacy policy: scoped prose spacing and visible list markers. */
+.privacy-content h2{text-align:left;margin-top:48px}
+.privacy-content p+p{margin-top:20px}
+.privacy-content ul{list-style:disc;padding-left:1.5em;margin:16px 0}
+.privacy-content a{overflow-wrap:anywhere}
